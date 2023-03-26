@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:sudoku/square.dart';
 
 class Board extends StatelessWidget {
   const Board({
     super.key,
     required this.sukodu,
+    required this.callback,
   });
 
-  final List<List<int?>> sukodu;
+  final List<List<Square>> sukodu;
+  final InputBoxCallback callback;
 
   @override
   Widget build(BuildContext context) {
-    final numbers = [];
+    final squares = [];
     for (var element in sukodu) {
-      for (var number in element) {
-        numbers.add(number);
+      for (var square in element) {
+        squares.add(square);
       }
     }
     final boxes = List.generate(
-      numbers.length,
+      squares.length,
       (index) => InputBox(
-        number: numbers[index],
+        square: squares[index],
+        callback: callback,
       ),
     );
     return GridView.count(
@@ -31,20 +35,33 @@ class Board extends StatelessWidget {
   }
 }
 
-class InputBox extends StatelessWidget {
-  const InputBox({super.key, required this.number});
+typedef InputBoxCallback = void Function(Square square);
 
-  final int? number;
+class InputBox extends StatelessWidget {
+  const InputBox({
+    super.key,
+    required this.square,
+    required this.callback,
+  });
+
+  final Square square;
+  final InputBoxCallback callback;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(),
-      ),
-      child: FittedBox(
-        child: Text(
-          '${number ?? ''}',
+    return GestureDetector(
+      onTap: () => callback.call(square),
+      child: ColoredBox(
+        color: square.selected ? Colors.blue[400]! : Colors.blue[200]!,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(),
+          ),
+          child: FittedBox(
+            child: Text(
+              '${square.number ?? ''}',
+            ),
+          ),
         ),
       ),
     );
